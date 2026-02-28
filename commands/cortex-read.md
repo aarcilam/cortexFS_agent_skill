@@ -3,32 +3,78 @@ name: cortex-read
 id: cortex-read
 category: CortexFS Core
 description: Recuperar conocimiento almacenado en CortexFS.
+execution_type: bash_command
 ---
 
 # cortex-read - Leer conocimiento
 
-Obtiene información previamente almacenada.
+> **TIPO DE EJECUCIÓN: COMANDO BASH/SHELL**
+> Este comando debe ejecutarse en la terminal del sistema operativo.
+
+Obtiene información previamente almacenada en CortexFS.
 
 ---
 
-## Uso
+## Comando Bash
 
+```bash
 cortex read <category> <id>
+```
 
 ---
 
-## Ejemplos
+## Cómo Ejecutar (para Agentes de IA)
 
-cortex read agent cortex-builder
+Usa tu herramienta de Shell/Terminal para ejecutar el comando:
 
-cortex read skill add-form
+```bash
+# Sintaxis
+cortex read "categoria" "identificador"
 
-cortex read project api-docs
+# Ejemplo real
+cortex read "agent" "cortex-builder"
+```
 
 ---
 
-## Comportamiento esperado
+## Parámetros
 
-- Retornar el contenido completo
-- No modificar estado
-- Error si no existe el ID
+| Parámetro | Tipo   | Descripción                                           |
+|-----------|--------|-------------------------------------------------------|
+| category  | string | Tipo de conocimiento (agent, skill, project, config, memory) |
+| id        | string | Identificador único de la entrada                     |
+
+---
+
+## Ejemplos de Ejecución
+
+```bash
+# Leer un agente
+cortex read "agent" "cortex-builder"
+
+# Leer un skill
+cortex read "skill" "add-form"
+
+# Leer documentación de proyecto
+cortex read "project" "api-docs"
+```
+
+---
+
+## Salida Esperada
+
+El comando retorna el contenido almacenado:
+
+```json
+{
+  "data": "{ \"role\": \"builder\", \"version\": \"1.0\" }"
+}
+```
+
+---
+
+## Comportamiento
+
+- Retorna el contenido completo de la entrada
+- Operación de solo lectura (no modifica estado)
+- Retorna error si el ID no existe en la categoría especificada
