@@ -1,5 +1,5 @@
 name: cortexfs
-version: 0.2.0
+version: 0.3.0
 display_name: CortexFS Memory Skill
 description: |
   Persistent cognitive memory layer backed by CortexFS CLI.
@@ -14,6 +14,95 @@ description: |
   1. Usa la herramienta de shell/terminal disponible
   2. Ejecuta el comando exactamente como se especifica en "run"
   3. Captura y procesa la salida del comando
+
+# ============================================================
+# 🧠 COMPORTAMIENTO AUTOMÁTICO DEL AGENTE
+# ============================================================
+# Este skill actúa como la MEMORIA PERSISTENTE del proyecto.
+# El agente DEBE seguir estas reglas de comportamiento:
+
+agent_behavior:
+  
+  # ─────────────────────────────────────────────────────────
+  # 🔍 REGLA 1: BUSCAR PRIMERO (Search-First)
+  # ─────────────────────────────────────────────────────────
+  search_first:
+    when: |
+      SIEMPRE que el usuario pregunte algo sobre el proyecto,
+      ANTES de responder o buscar en el código:
+    action: |
+      1. Ejecutar: cortex search "<términos relevantes de la pregunta>"
+      2. Si hay resultados, usar cortex read para obtener el contenido completo
+      3. Usar ese conocimiento para responder o complementar la respuesta
+    examples:
+      - question: "¿Cómo funciona la autenticación?"
+        do_first: "cortex search 'autenticación auth login'"
+      - question: "¿Cuáles son las convenciones de código?"
+        do_first: "cortex search 'convenciones código estilo'"
+      - question: "¿Qué decisiones de arquitectura tomamos?"
+        do_first: "cortex search 'arquitectura decisiones'"
+    why: |
+      CortexFS contiene conocimiento curado y decisiones previas.
+      Buscar aquí PRIMERO evita repetir trabajo o contradecir decisiones.
+
+  # ─────────────────────────────────────────────────────────
+  # 💾 REGLA 2: GUARDAR CONOCIMIENTO IMPORTANTE (Auto-Save)
+  # ─────────────────────────────────────────────────────────
+  auto_save:
+    when: |
+      Guardar AUTOMÁTICAMENTE cuando se descubra o defina:
+    triggers:
+      - "Decisiones de arquitectura o diseño"
+      - "Convenciones de código acordadas"
+      - "Patrones o soluciones reutilizables"
+      - "Configuraciones importantes del proyecto"
+      - "APIs o endpoints documentados"
+      - "Bugs importantes y sus soluciones"
+      - "Dependencias clave y su propósito"
+      - "Flujos de negocio o lógica compleja"
+      - "Información que el usuario pide recordar"
+      - "Contexto importante que se perdería entre sesiones"
+    action: |
+      1. Identificar la categoría apropiada
+      2. Crear un ID semántico descriptivo
+      3. Estructurar el contenido en JSON
+      4. Ejecutar: cortex save "<category>" "<id>" "<contenido JSON>"
+    categories:
+      arquitectura: "Decisiones de diseño, patrones, estructura"
+      convenciones: "Reglas de código, estilo, naming"
+      config: "Configuraciones, variables de entorno, settings"
+      api: "Endpoints, contratos, schemas"
+      bugs: "Problemas encontrados y soluciones"
+      flujos: "Lógica de negocio, workflows, procesos"
+      dependencias: "Librerías importantes y su uso"
+      memoria: "Información general que recordar"
+
+  # ─────────────────────────────────────────────────────────
+  # 🔄 REGLA 3: INICIO DE SESIÓN (Session Start)
+  # ─────────────────────────────────────────────────────────
+  session_start:
+    when: "Al inicio de una nueva conversación o sesión"
+    action: |
+      1. Ejecutar: cortex load-state
+      2. Revisar el estado anterior para contexto
+      3. Ejecutar: cortex list
+      4. Conocer qué conocimiento está disponible
+    why: "Retomar contexto sin que el usuario tenga que repetir información"
+
+  # ─────────────────────────────────────────────────────────
+  # 🏁 REGLA 4: FIN DE SESIÓN (Session End)
+  # ─────────────────────────────────────────────────────────
+  session_end:
+    when: |
+      - El usuario indica que termina la sesión
+      - Se completó una tarea importante
+      - Hubo cambios significativos en el proyecto
+    action: |
+      Ejecutar: cortex save-state con JSON estructurado incluyendo:
+      - task: qué se estaba haciendo
+      - status: estado actual
+      - progress: completado/pendiente
+      - next_steps: siguientes acciones
 
 execution:
   type: shell
@@ -264,28 +353,87 @@ agent_usage_guide: |
   ## Guía para Agentes de IA
 
   Este skill proporciona comandos CLI que DEBEN ejecutarse en la terminal.
+  CortexFS es tu MEMORIA PERSISTENTE - úsala activamente.
   
-  ### Patrón de Uso
+  ### ⚡ FLUJO DE TRABAJO OBLIGATORIO
   
-  1. **Identificar el comando** necesario de la lista de commands
-  2. **Construir el comando bash** reemplazando los placeholders {{...}}
-  3. **Ejecutar en terminal** usando tu herramienta Shell/Bash
-  4. **Procesar la salida** del comando
-  
-  ### Ejemplo Completo
-  
-  Para guardar conocimiento:
-  ```bash
-  cortex save "agent" "mi-agente" "{ \"rol\": \"asistente\" }"
+  ```
+  ┌─────────────────────────────────────────────────────────┐
+  │  INICIO DE SESIÓN                                       │
+  │  1. cortex load-state    → Recuperar contexto anterior  │
+  │  2. cortex list          → Ver conocimiento disponible  │
+  └─────────────────────────────────────────────────────────┘
+                            ↓
+  ┌─────────────────────────────────────────────────────────┐
+  │  CUANDO EL USUARIO PREGUNTE ALGO                        │
+  │  1. cortex search "..."  → BUSCAR PRIMERO en memoria    │
+  │  2. cortex read "..." "..."  → Leer detalles si existe  │
+  │  3. Luego buscar en código si es necesario              │
+  └─────────────────────────────────────────────────────────┘
+                            ↓
+  ┌─────────────────────────────────────────────────────────┐
+  │  CUANDO DESCUBRAS/DEFINAS ALGO IMPORTANTE               │
+  │  → cortex save "categoria" "id" "{...JSON...}"          │
+  │                                                         │
+  │  Guardar: decisiones, convenciones, configs, APIs,      │
+  │           bugs+soluciones, patrones, flujos de negocio  │
+  └─────────────────────────────────────────────────────────┘
+                            ↓
+  ┌─────────────────────────────────────────────────────────┐
+  │  FIN DE SESIÓN / TAREA COMPLETADA                       │
+  │  → cortex save-state "{...estado estructurado...}"      │
+  └─────────────────────────────────────────────────────────┘
   ```
   
-  Para leer conocimiento:
+  ### 🔍 Ejemplo: Usuario pregunta algo
+  
+  Usuario: "¿Cómo manejamos los errores en la API?"
+  
   ```bash
-  cortex read "agent" "mi-agente"
+  # PASO 1: Buscar primero en CortexFS
+  cortex search "errores API manejo error handling"
+  
+  # PASO 2: Si encuentra resultados, leer el contenido
+  cortex read "convenciones" "error-handling"
+  
+  # PASO 3: Responder usando ese conocimiento + código si necesario
   ```
   
-  ### Importante
+  ### 💾 Ejemplo: Guardar conocimiento importante
   
-  - Los comandos `cortex` son ejecutables del sistema
-  - Requieren que el CLI esté instalado globalmente
-  - La salida es texto/JSON que debe parsearse
+  Después de definir cómo manejar errores:
+  
+  ```bash
+  cortex save "convenciones" "error-handling" '{
+    "topic": "Manejo de errores en API",
+    "rules": [
+      "Usar AppError para errores controlados",
+      "Logging con nivel según severidad",
+      "Respuestas estandarizadas con code y message"
+    ],
+    "example": "throw new AppError(400, \"VALIDATION_ERROR\", \"Campo requerido\")",
+    "decided_on": "2024-01-15",
+    "reason": "Consistencia en respuestas de error"
+  }'
+  ```
+  
+  ### 📂 Categorías Recomendadas
+  
+  | Categoría      | Usar para                                    |
+  |----------------|----------------------------------------------|
+  | arquitectura   | Decisiones de diseño, patrones, estructura   |
+  | convenciones   | Reglas de código, estilo, naming             |
+  | config         | Configuraciones, env vars, settings          |
+  | api            | Endpoints, contratos, schemas                |
+  | bugs           | Problemas encontrados y soluciones           |
+  | flujos         | Lógica de negocio, workflows                 |
+  | dependencias   | Librerías importantes y su uso               |
+  | memoria        | Información general a recordar               |
+  
+  ### ⚠️ Recordatorios Críticos
+  
+  - **BUSCAR ANTES DE RESPONDER** - CortexFS tiene conocimiento curado
+  - **GUARDAR PROACTIVAMENTE** - Si es importante, persistirlo
+  - **ESTRUCTURAR EN JSON** - Facilita búsqueda y lectura futura
+  - Los comandos `cortex` son ejecutables BASH del sistema
+  - Requieren permisos de escritura fuera del workspace (usar "all")
