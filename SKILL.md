@@ -104,6 +104,86 @@ commands:
     run: |
       cortex load-state
 
+  cortex_config:
+    description: "Set the brain root directory for CortexFS."
+    input_schema:
+      type: object
+      properties:
+        path:
+          type: string
+          description: "Absolute path to the brain root directory"
+    output_schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+        brainRoot:
+          type: string
+    run: |
+      cortex config "{{path}}"
+
+  cortex_update:
+    description: "Update existing knowledge in CortexFS."
+    input_schema:
+      type: object
+      properties:
+        category:
+          type: string
+          description: "Knowledge category"
+        id:
+          type: string
+          description: "Semantic identifier"
+        content:
+          type: string
+          description: "New content to replace existing"
+    output_schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+        path:
+          type: string
+    run: |
+      cortex update "{{category}}" "{{id}}" "{{content}}"
+
+  cortex_delete:
+    description: "Delete knowledge from CortexFS."
+    input_schema:
+      type: object
+      properties:
+        category:
+          type: string
+          description: "Knowledge category"
+        id:
+          type: string
+          description: "Semantic identifier to delete"
+    output_schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+    run: |
+      cortex delete "{{category}}" "{{id}}"
+
+  cortex_list:
+    description: "List knowledge in CortexFS, optionally filtered by category."
+    input_schema:
+      type: object
+      properties:
+        category:
+          type: string
+          description: "Optional category to list (lists all if not provided)"
+          default: ""
+    output_schema:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: string
+    run: |
+      cortex list "{{category}}"
+
 outputs:
   generic_result:
     description: "Generic result output common for commands."
