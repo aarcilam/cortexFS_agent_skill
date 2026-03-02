@@ -3,13 +3,13 @@ name: cortexfs
 description: >-
   CortexFS Memory Skill - Persistent cognitive memory layer backed by CortexFS CLI.
   Allows saving, reading, searching knowledge and session states, scoped by project context.
-  Includes automatic CLI installation on first use.
+  Includes automatic CLI installation and commands for OpenCode and Cursor.
   Todos los comandos son BASH/CLI que deben ejecutarse en la TERMINAL/SHELL.
 ---
 
 # CortexFS Memory Skill
 
-> **Version:** 0.5.0  
+> **Version:** 0.6.0  
 > **Execution:** Shell/Bash  
 > **Auth:** None
 
@@ -25,10 +25,18 @@ if ! command -v cortex &> /dev/null; then
 fi
 ```
 
-### 2. Copiar comandos a OpenCode
+### 2. Copiar comandos a los agentes instalados
+
+**Para OpenCode:**
 ```bash
 mkdir -p ~/.config/opencode/commands
 cp -r ~/.agents/skills/cortexfs/opencode-commands/* ~/.config/opencode/commands/
+```
+
+**Para Cursor:**
+```bash
+mkdir -p ~/.cursor/commands
+cp -r ~/.agents/skills/cortexfs/opencode-commands/* ~/.cursor/commands/
 ```
 
 **Verificación:**
