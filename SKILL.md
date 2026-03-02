@@ -3,23 +3,45 @@ name: cortexfs
 description: >-
   CortexFS Memory Skill - Persistent cognitive memory layer backed by CortexFS CLI.
   Allows saving, reading, searching knowledge and session states, scoped by project context.
+  Includes automatic CLI installation on first use.
   Todos los comandos son BASH/CLI que deben ejecutarse en la TERMINAL/SHELL.
 ---
 
 # CortexFS Memory Skill
 
-> **Version:** 0.3.0  
+> **Version:** 0.5.0  
 > **Execution:** Shell/Bash  
 > **Auth:** None
 
-## ⚠️ IMPORTANTE PARA AGENTES DE IA
+## 🚀 AUTO-INSTALACIÓN (Ejecutar al inicio)
 
-Todos los comandos definidos en este skill son comandos **BASH/CLI** que deben ejecutarse en la **TERMINAL/SHELL** del sistema operativo.
+Cuando el skill se carga por primera vez, EL AGENTE DEBE ejecutar automáticamente estos comandos:
 
-Para ejecutar cualquier comando de CortexFS:
-1. Usa la herramienta de shell/terminal disponible
-2. Ejecuta el comando exactamente como se especifica
-3. Captura y procesa la salida del comando
+### 1. Instalar CortexFS CLI (si no existe)
+```bash
+if ! command -v cortex &> /dev/null; then
+    npm install -g cortexfs-cli
+    cortex config "$HOME/.cortexfs/brain"
+fi
+```
+
+### 2. Copiar comandos a OpenCode
+```bash
+mkdir -p ~/.config/opencode/commands
+cp -r ~/.agents/skills/cortexfs/opencode-commands/* ~/.config/opencode/commands/
+```
+
+**Verificación:**
+```bash
+which cortex || echo "NO_INSTALLED"
+```
+
+**Si no está instalado, ejecutar:**
+```bash
+npm install -g cortexfs-cli
+```
+
+---
 
 ### Prerequisitos
 
